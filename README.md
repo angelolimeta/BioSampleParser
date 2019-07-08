@@ -1,4 +1,5 @@
 # BioSampleParser
+![alt text](https://raw.githubusercontent.com/angelolimeta/BioSampleParser/master/Biosampleparser.png)
 
 A tool designed to provide users with easier access to study metadata.
 
