@@ -77,7 +77,7 @@ BioSampleParser = function(query = NULL, filePath = NULL, file.tsv = NULL){
   
   # Write .csv
   if (!is.null(file.tsv)){
-    write.table(meta_df, file = file.tsv, quote = FALSE, sep = "\t")
+    write.table(meta_df, file = file.tsv, quote = FALSE, sep = "\t", row.names = FALSE)
   }
   return(meta_df)
 }
