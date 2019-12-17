@@ -29,11 +29,28 @@ BioSampleParser = function(query = NULL, filePath = NULL, file.tsv = NULL){
     meta_xml = entrez_fetch(db="biosample", id = BioSampleList, rettype = "xml")
     # Read queried xml file
     meta = read_xml(meta_xml)
+    
+    # Add runinfo
+    EntrezResult = entrez_link(dbfrom = "bioproject", id = BioProjectID, db = "sra")
+    sraList = EntrezResult$links$bioproject_sra_all
+    if (length(sraList) == 0){
+      warning("Unable to find any associated SRA runs for the specified BioProject ID")
+      return(NULL)
+    }
+    # Fetch all SRA runs in .xml format
+    runInfo_xml = entrez_fetch(db="sra", id = sraList, rettype = "xml")
+    # Read queried xml file
+    runInfo = read_xml(runInfo_xml)
   }
   else {
     # Read xml file from path
     meta = read_xml(filePath)
   }
+  
+  # Let's parse our xml files (sample info and run info) into data frames
+  
+  # SAMPLE INFO
+  
   # Convert to list
   meta_list = as_list(meta)
   
@@ -75,9 +92,42 @@ BioSampleParser = function(query = NULL, filePath = NULL, file.tsv = NULL){
     index = index + 1
   }
   
+  # RUN INFO
+  
+  # Convert to list
+  runInfo_list = as_list(runInfo)
+  
+  # Initialize empty data frame
+  nSamples = length(runInfo_list$EXPERIMENT_PACKAGE_SET)
+  nAttributes = 4
+  runInfo_df = data.frame(matrix(NA, nrow = nSamples, ncol = nAttributes))
+  
+  # Fill data frame with values from .xml file
+  for (i in 1:nSamples) {
+    index = 1
+    # Store SRA ID
+    runInfo_df[i,index] = runInfo_list$EXPERIMENT_PACKAGE_SET[[i]]$EXPERIMENT[[1]][[1]][[1]]
+    index = index + 1
+    # Store sample name
+    runInfo_df[i,index] = runInfo_list$EXPERIMENT_PACKAGE_SET[[i]]$EXPERIMENT[[2]][[1]][[1]]
+    index = index + 1
+    # Store Description
+    runInfo_df[i,index] = runInfo_list$EXPERIMENT_PACKAGE_SET[[i]]$EXPERIMENT[[4]][[1]][[1]]
+    index = index + 1
+    # Store Instrument model
+    runInfo_df[i,index] = runInfo_list$EXPERIMENT_PACKAGE_SET[[i]]$EXPERIMENT[[5]][[1]][[1]]
+  }
+  
+  # Add colnames
+  colnames(runInfo_df)[1] = names(runInfo_list$EXPERIMENT_PACKAGE_SET[[1]]$EXPERIMENT[[1]])
+  colnames(runInfo_df)[2] = "SAMPLE_NAME"
+  colnames(runInfo_df)[3] = names(runInfo_list$EXPERIMENT_PACKAGE_SET[[1]]$EXPERIMENT[[4]])[[1]]
+  colnames(runInfo_df)[4] = names(runInfo_list$EXPERIMENT_PACKAGE_SET[[1]]$EXPERIMENT)[[5]]
+
+  
   # Write .csv
   if (!is.null(file.tsv)){
     write.table(meta_df, file = file.tsv, quote = FALSE, sep = "\t", row.names = FALSE)
   }
-  return(meta_df)
+  return(list(sample_info = meta_df, run_info = runInfo_df))
 }
