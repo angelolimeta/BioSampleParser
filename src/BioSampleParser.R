@@ -120,7 +120,7 @@ BioSampleParser = function(query = NULL, filePath = NULL, file.tsv = NULL){
   
   # Add colnames
   colnames(runInfo_df)[1] = names(runInfo_list$EXPERIMENT_PACKAGE_SET[[1]]$EXPERIMENT[[1]])
-  colnames(runInfo_df)[2] = "SAMPLE_NAME"
+  colnames(runInfo_df)[2] = names(runInfo_list$EXPERIMENT_PACKAGE_SET[[1]]$EXPERIMENT)[[2]]
   colnames(runInfo_df)[3] = names(runInfo_list$EXPERIMENT_PACKAGE_SET[[1]]$EXPERIMENT[[4]])[[1]]
   colnames(runInfo_df)[4] = names(runInfo_list$EXPERIMENT_PACKAGE_SET[[1]]$EXPERIMENT)[[5]]
 
