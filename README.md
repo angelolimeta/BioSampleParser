@@ -19,7 +19,7 @@ source("/path/to/BioSampleParser.R")
 ```
 Call the function with the query argumnet set to your study identifier:
 ``` r
-metadata_df <- BioSampleParser(query = "PRJNA397906")
+df_metadata <- BioSampleParser(query = "PRJNA397906")
 ```
 
 ## List of all arguments
